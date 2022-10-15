@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button onclick="Logout()">Logout</button><br>
+    <form onsubmit="AddPost(event)">
+        <input type="url" id="image" placeholder="Image Url"><br>
+        <textarea id="desc" rows="5" placeholder="Post Description"></textarea><br>
+        <button type="submit">Add Post</button>
+    </form>
+
+    <div style="display: flex;gap: 3%;" id="mypics">
+        <div>
+            <img src="" alt="post" width="200" height="auto">
+            <p></p>
+        </div>
+    </div>
+</body>
+
+<script>
+    function Logout() {
+        localStorage.clear()
+        window.location.assign("index.html")
+    }
+
+    window.onload = (event) => {
+        const userData = JSON.parse(localStorage.getItem("data"))
+        if (!userData) {
+            alert("Please Login to continue")
+            window.location.assign("login.html")
+        }
+        userData.pics.forEach(post => {
+            document.getElementById("mypics").innerHTML +=
+                `<div>
+                    <img src="${post.image}" alt="post" width="200" height="auto"/>
+                    <p>${post.description}</p>
+                </div>`
+        });
+    }
+
+    async function AddPost(e) {
+        e.preventDefault()
+        const userData = JSON.parse(localStorage.getItem("data"))
+        console.log(userData);
+        try {
+            const response = await fetch('http://localhost:8081/postpic',
+                {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    redirect: 'follow',
+                    referrerPolicy: 'no-referrer',
+                    body: JSON.stringify({
+                        userId: JSON.parse(localStorage.getItem("data")).id,
+                        image: e.target["image"].value,
+                        description: e.target["desc"].value
+                    })
+                }
+            )
+            const respBody = await response.json()
+            alert(respBody.message)
+
+            const userData = JSON.parse(localStorage.getItem("data"))
+            userData.pics.push(respBody.data)
+            localStorage.setItem("data", JSON.stringify(userData))
+
+            if (response.ok) {
+                window.location.reload()
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+</script>
+
+</html>

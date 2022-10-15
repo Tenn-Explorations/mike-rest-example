@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form onsubmit="Register(event)">
+        <input type="text" id="name" placeholder="Name"><br>
+        <input type="password" id="pwd" placeholder="Password"><br>
+        <input type="password" id="confirmPwd" placeholder="Confirm Password"><br>
+        <button type="submit">Sign Up</button>
+    </form>
+    <a href="login.html">Already have an account?</a><br>
+    <a href="index.html">Back</a>
+</body>
+
+<script>
+    async function Register(e) {
+        e.preventDefault()
+        try {
+            const response = await fetch('http://localhost:8081/register',
+                {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    redirect: 'follow',
+                    referrerPolicy: 'no-referrer',
+
+                    body: JSON.stringify({
+                        name: e.target["name"].value,
+                        pwd: e.target["pwd"].value,
+                        confirmPwd: e.target["confirmPwd"].value
+                    })
+                }
+            )
+            const respBody = await response.json()
+            alert(respBody.message)
+
+            if (response.ok) {
+                localStorage.setItem("data",JSON.stringify(respBody.data))
+                window.location.assign("profile.html")
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+</script>
+
+</html>
